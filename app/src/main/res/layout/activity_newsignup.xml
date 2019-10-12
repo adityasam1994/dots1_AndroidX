@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dotsbackground5">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profilepic"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:src="@drawable/iconfinder_camera"
+                    app:civ_border_color="#eeeeee"
+                    app:civ_border_width="2dp"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="right"
+                    android:src="@drawable/iconfinder_plus" />
+            </FrameLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/etfname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btnimage"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#000000"
+                    android:drawableLeft="@drawable/ic_account_circle_real_black_24dp"
+                    android:drawablePadding="20dp"
+                    android:ems="10"
+                    android:hint="First Name"
+                    android:inputType="textPersonName"
+                    android:textAlignment="viewStart"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/etlname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/etfname"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#000000"
+                    android:drawableLeft="@drawable/ic_account_circle_real_black_24dp"
+                    android:drawablePadding="20dp"
+                    android:ems="10"
+                    android:hint="Last Name"
+                    android:inputType="textPersonName"
+                    android:textAlignment="viewStart"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/etmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/etlname"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#000000"
+                    android:drawableLeft="@drawable/ic_email_real_black_24dp"
+                    android:drawablePadding="20dp"
+                    android:ems="10"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/etpass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/etmail"
+                    android:layout_marginBottom="1dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#000000"
+                    android:drawableLeft="@drawable/ic_lock_black_24dp"
+                    android:drawablePadding="20dp"
+                    android:ems="10"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/etpass2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/etpass"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="1dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#000000"
+                    android:drawableLeft="@drawable/ic_lock_black_24dp"
+                    android:drawablePadding="20dp"
+                    android:ems="10"
+                    android:hint="Re-Enter Password"
+                    android:inputType="textPassword"
+                    android:textAlignment="viewStart"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000" />
+            </android.support.design.widget.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/code_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    app:ccp_areaCodeDetectedCountry="true"
+                    app:ccp_contentColor="#000000"
+                    app:ccp_showNameCode="false"
+                    app:ccp_textSize="14dp" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="#000000">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/etphone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/etpass2"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="1dp"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="#000000"
+                        android:drawableLeft="@drawable/ic_phone_black_24dp"
+                        android:drawablePadding="20dp"
+                        android:ems="10"
+                        android:hint=" Phone Number"
+                        android:inputType="phone"
+                        android:textColor="#000000"
+                        android:textColorHint="#000000" />
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:id="@+id/btnchangeaddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginRight="20dp"
+                        android:background="@color/zxing_transparent"
+                        android:visibility="invisible" />
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="#000000">
+
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/etaddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_below="@+id/etphone"
+                            android:layout_centerHorizontal="true"
+                            android:backgroundTint="#000000"
+                            android:drawableLeft="@drawable/ic_home_black_24dp"
+                            android:drawablePadding="20dp"
+                            android:ems="10"
+                            android:hint="Address/Current Location"
+                            android:inputType="none"
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
+                    </android.support.design.widget.TextInputLayout>
+                </FrameLayout>
+
+                <Button
+                    android:id="@+id/btnloc"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="right"
+                    android:background="@drawable/iconfinder_marker"
+                    android:gravity="right" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnreg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rounded_button"
+                android:paddingEnd="80dp"
+                android:paddingStart="80dp"
+                android:text="Register"
+                android:textColor="#f3a360"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/btnsubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btnsubmit"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:elevation="8dp"
+                android:text="Log in"
+                android:textColor="#373737"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:id="@+id/social_layout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal">
+
+                <com.facebook.login.widget.LoginButton
+                    android:id="@+id/fsignin"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="0" />
+
+                <ImageButton
+                    android:id="@+id/fsigninbutton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
+                    android:background="@drawable/fblogin"
+                    android:maxHeight="10px"
+                    android:maxWidth="200px"
+                    android:onClick="onClicfb"
+                    android:scaleType="fitCenter" />
+
+                <ImageButton
+                    android:id="@+id/gsign"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_weight="1"
+                    android:background="@drawable/googlelogin"
+                    android:maxHeight="10px"
+                    android:maxWidth="200px"
+                    android:scaleType="fitCenter" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>
