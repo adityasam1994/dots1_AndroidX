@@ -34,18 +34,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.karan.churi.PermissionManager.PermissionManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.OnReverseGeocodingListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -60,6 +65,9 @@ public class newdrawer extends AppCompatActivity
     FirebaseAuth fauth = FirebaseAuth.getInstance();
     PermissionManager permission;
     TextView currentlocation;
+    TextView tvname;
+    ImageView ivpic;
+    StorageReference sref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://mydots-554f6.appspot.com/");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,8 @@ public class newdrawer extends AppCompatActivity
         btnnewline = (Button) findViewById(R.id.btnnewline);
         gridview = (LinearLayout) findViewById(R.id.gridview);
         currentlocation = (TextView) findViewById(R.id.location);
+
+        setuserprofile();
 
         createcards();
 
@@ -100,6 +110,48 @@ public class newdrawer extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    /*Setting profile pic and name*/
+
+    private void setuserprofile() {
+        setprofilepicture();
+        dbruser.child(fauth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String name = dataSnapshot.child("fname").getValue().toString() +" "+ dataSnapshot.child("lname").getValue().toString();
+                String email = fauth.getCurrentUser().getEmail().toString();
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                tvname = (TextView)drawer.findViewById(R.id.tvname);
+                TextView tvemail = (TextView)drawer.findViewById(R.id.tvemail);
+                tvname.setText(name);
+                tvemail.setText(email);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /*Setting profile picture*/
+
+    private void setprofilepicture() {
+        sref.child("images").child(fauth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                ivpic = (ImageView)drawer.findViewById(R.id.ivpic);
+                Picasso.get().load(uri).resize(300,300).into(ivpic);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(newdrawer.this, "Failed to load image", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /*GPS state check*/
@@ -358,19 +410,12 @@ public class newdrawer extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        /*if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }*/
+        if (id == R.id.nav_account) {
+            startActivity(new Intent(newdrawer.this, myaccount.class));
+        } else if (id == R.id.lout) {
+            fauth.signOut();
+            startActivity(new Intent(newdrawer.this, newlogin.class));
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

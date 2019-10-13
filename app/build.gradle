@@ -31,6 +31,8 @@ dependencies {
     implementation 'com.github.karanchuri:PermissionManager:0.1.0'
     implementation 'com.mindorks:paracamera:0.2.2'
     implementation 'io.github.memfis19:annca:0.3.7'
+    implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.3'
+    implementation 'com.github.fevziomurtekin:custom-progress-dialog:0.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
     implementation 'com.google.firebase:firebase-core:16.0.1'

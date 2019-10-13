@@ -59,15 +59,6 @@
             android:background="@drawable/imageborder">
 
             <Button
-                android:id="@+id/btnmapdone"
-                android:layout_width="80dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/blueb"
-                android:text="Done"
-                android:textSize="8sp" />
-
-            <Button
                 android:id="@+id/btnsetmap"
                 android:layout_width="80dp"
                 android:layout_height="20dp"

@@ -2,14 +2,14 @@ package aditya.cyfoes.com.dots1;
 
 public class PlaceOrder {
     String service, servicetype, time, Service_Date,
-            eaddress, username, latitude, longitude, ecomment, cost, code, qrcode, date;
+            eaddress, username, latitude, longitude, ecomment, cost, code, qrcode, date, format, status;
 
     public PlaceOrder(String service, String servicetype, String time, String service_date, String eaddress, String username,
-                      String latitude, String longitude, String ecomment, String cost, String code, String qrcode, String date) {
+                      String latitude, String longitude, String ecomment, String cost, String code, String qrcode, String date, String format) {
         this.service = service;
         this.servicetype = servicetype;
         this.time = time;
-        Service_Date = service_date;
+        this.Service_Date = service_date;
         this.eaddress = eaddress;
         this.username = username;
         this.latitude = latitude;
@@ -19,6 +19,8 @@ public class PlaceOrder {
         this.code = code;
         this.qrcode = qrcode;
         this.date = date;
+        this.format = format;
+        this.status = "pending";
     }
 
     public String getService() {
@@ -123,5 +125,21 @@ public class PlaceOrder {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

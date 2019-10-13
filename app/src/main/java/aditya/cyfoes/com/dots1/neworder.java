@@ -57,6 +57,7 @@ import io.nlopez.smartlocation.geocoding.utils.LocationAddress;
 
 public class neworder extends AppCompatActivity {
 
+    Context context;
     String ordercode, service, qrcode;
     Button btnsubmit, btneditaddress, btnlocation, btnplus;
     ImageView btnback;
@@ -67,6 +68,7 @@ public class neworder extends AppCompatActivity {
     PermissionManager permission;
     String filePath;
     RoundedImageView btnimage;
+    String filetype;
     DatabaseReference dbrservice = FirebaseDatabase.getInstance().getReference("services");
     DatabaseReference dbrservicetime = FirebaseDatabase.getInstance().getReference("servicetime");
 
@@ -75,6 +77,7 @@ public class neworder extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_neworder);
 
+        this.context = context;
         permission = new PermissionManager() {};
         //permission.checkAndRequestPermissions(this);
 
@@ -182,6 +185,7 @@ public class neworder extends AppCompatActivity {
                     permission.checkAndRequestPermissions(neworder.this);
                     return;
                 }
+                builder.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_MEDIUM);
                 new Annca(builder.build()).launchCamera();
             }
         });
@@ -211,7 +215,7 @@ public class neworder extends AppCompatActivity {
         if (requestCode == 2 && resultCode == RESULT_OK) {
             filePath = data.getStringExtra(AnncaConfiguration.Arguments.FILE_PATH);
             String type = getMimeType(neworder.this, Uri.fromFile(new File(filePath)));
-
+            filetype = type;
             if(type.equals("image")) {
                 Bitmap myBitmap = BitmapFactory.decodeFile(filePath);
                 btnimage.setImageBitmap(myBitmap);
@@ -267,6 +271,7 @@ public class neworder extends AppCompatActivity {
             }
         },year,month,dayOfMonth);
         dialog.show();
+        dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
     }
 
     /*Time list*/
@@ -376,6 +381,8 @@ public class neworder extends AppCompatActivity {
                 intent.putExtra("qrcode", qrcode);
                 intent.putExtra("latitude",latitude);
                 intent.putExtra("longitude", longitude);
+                intent.putExtra("filepath", filePath);
+                intent.putExtra("filetype", filetype);
 
                 startActivity(intent);
             }
@@ -413,6 +420,10 @@ public class neworder extends AppCompatActivity {
                         intent.putExtra("qrcode",qrcode);
                         intent.putExtra("latitude",latitude);
                         intent.putExtra("longitude", longitude);
+                        intent.putExtra("filepath", filePath);
+                        intent.putExtra("filetype", filetype);
+
+                        Toast.makeText(neworder.this, latitude+"/"+longitude, Toast.LENGTH_SHORT).show();
 
                         startActivity(intent);
                     }
