@@ -1,14 +1,31 @@
 package aditya.cyfoes.com.dots1;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Location;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -17,21 +34,39 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.karan.churi.PermissionManager.PermissionManager;
+import com.mindorks.paracamera.Camera;
 
+import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 
-public class neworder extends AppCompatActivity{
+import io.github.memfis19.annca.Annca;
+import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
+import io.nlopez.smartlocation.OnGeocodingListener;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.OnReverseGeocodingListener;
+import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.geocoding.utils.LocationAddress;
+
+public class neworder extends AppCompatActivity {
 
     String ordercode, service, qrcode;
-    Button btnsubmit;
+    Button btnsubmit, btneditaddress, btnlocation, btnplus;
     ImageView btnback;
     EditText etservice, ettime, etdate, etcomment, etaddress;
     TextView servicename;
+    Boolean gpsaddress = false;
+    double latitude, longitude;
+    PermissionManager permission;
+    String filePath;
+    RoundedImageView btnimage;
     DatabaseReference dbrservice = FirebaseDatabase.getInstance().getReference("services");
     DatabaseReference dbrservicetime = FirebaseDatabase.getInstance().getReference("servicetime");
 
@@ -40,18 +75,26 @@ public class neworder extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_neworder);
 
-        etservice = (EditText)findViewById(R.id.etservice);
-        ettime = (EditText)findViewById(R.id.ettime);
-        etdate = (EditText)findViewById(R.id.etdate);
-        etcomment = (EditText)findViewById(R.id.etcomment);
-        etaddress = (EditText)findViewById(R.id.etaddress);
-        servicename = (TextView)findViewById(R.id.servicename);
-        btnsubmit = (Button)findViewById(R.id.btnsubmit);
-        btnback = (ImageView)findViewById(R.id.btnback);
+        permission = new PermissionManager() {};
+        //permission.checkAndRequestPermissions(this);
+
+        etservice = (EditText) findViewById(R.id.etservice);
+        ettime = (EditText) findViewById(R.id.ettime);
+        etdate = (EditText) findViewById(R.id.etdate);
+        etcomment = (EditText) findViewById(R.id.etcomment);
+        etaddress = (EditText) findViewById(R.id.etaddress);
+        servicename = (TextView) findViewById(R.id.servicename);
+        btnsubmit = (Button) findViewById(R.id.btnsubmit);
+        btnback = (ImageView) findViewById(R.id.btnback);
+        btneditaddress = (Button) findViewById(R.id.btneditaddress);
+        btnlocation = (Button) findViewById(R.id.btnlocation);
+        btnplus = (Button) findViewById(R.id.btnplus);
+        btnimage = (RoundedImageView) findViewById(R.id.btnimage);
 
         service = getIntent().getExtras().getString("service");
 
         generatecode();
+
         QRcode();
 
         servicename.setText(service);
@@ -88,6 +131,113 @@ public class neworder extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        btnlocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        btneditaddress.setVisibility(View.VISIBLE);
+                        gpsaddress = true;
+                        setgpslocation();
+                    } else {
+                        permission.checkAndRequestPermissions(neworder.this);
+                    }
+                } else {
+                    btneditaddress.setVisibility(View.VISIBLE);
+                    gpsaddress = true;
+                    setgpslocation();
+                }
+            }
+        });
+
+        btneditaddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(neworder.this);
+                builder.setTitle("Changing address");
+                builder.setMessage("Are you sure you want ot enter manually?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        btneditaddress.setVisibility(View.INVISIBLE);
+                        gpsaddress = false;
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(neworder.this, "Okay", Toast.LENGTH_SHORT).show();
+                    }
+                }).show();
+            }
+        });
+
+        btnplus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AnncaConfiguration.Builder builder = new AnncaConfiguration.Builder(neworder.this, 2);
+                if (ActivityCompat.checkSelfPermission(neworder.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    permission.checkAndRequestPermissions(neworder.this);
+                    return;
+                }
+                new Annca(builder.build()).launchCamera();
+            }
+        });
+    }
+
+    /*filetype checker*/
+
+    public String getMimeType(Context context, Uri uri) {
+        String mimeType = null;
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
+        }
+        String[] msplit = mimeType.split("/");
+        return msplit[0];
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 2 && resultCode == RESULT_OK) {
+            filePath = data.getStringExtra(AnncaConfiguration.Arguments.FILE_PATH);
+            String type = getMimeType(neworder.this, Uri.fromFile(new File(filePath)));
+
+            if(type.equals("image")) {
+                Bitmap myBitmap = BitmapFactory.decodeFile(filePath);
+                btnimage.setImageBitmap(myBitmap);
+            }else if(type.equals("video")){
+                Bitmap thumb = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
+                btnimage.setImageBitmap(thumb);
+            }
+        }
+    }
+
+    /*Set GPS location*/
+
+    private void setgpslocation() {
+        SmartLocation.with(neworder.this).location().oneFix().start(new OnLocationUpdatedListener() {
+            @Override
+            public void onLocationUpdated(Location location) {
+                SmartLocation.with(neworder.this).geocoding().reverse(location, new OnReverseGeocodingListener() {
+                    @Override
+                    public void onAddressResolved(Location location, List<Address> list) {
+                        if(list.size() > 0){
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            etaddress.setText(list.get(0).getAddressLine(0));
+                        }
+                    }
+                });
             }
         });
     }
@@ -210,20 +360,65 @@ public class neworder extends AppCompatActivity{
         comment = etcomment.getText().toString().trim();
         address = etaddress.getText().toString().trim();
 
-        if(!time.isEmpty() && !date.isEmpty() && !comment.isEmpty() && !address.isEmpty()){
-            Intent intent = new Intent(neworder.this, statuspage.class);
+        if(!gpsaddress){
+            decodeaddress(address);
+        }else {
+            if (!time.isEmpty() && !date.isEmpty() && !address.isEmpty()) {
+                Intent intent = new Intent(neworder.this, statuspage.class);
 
-            intent.putExtra("service", service);
-            intent.putExtra("servicetype",servicetype);
-            intent.putExtra("time", time);
-            intent.putExtra("date", date);
-            intent.putExtra("comment", comment);
-            intent.putExtra("address", address);
-            intent.putExtra("orderid", ordercode);
-            intent.putExtra("qrcode",qrcode);
+                intent.putExtra("service", service);
+                intent.putExtra("servicetype", servicetype);
+                intent.putExtra("time", time);
+                intent.putExtra("date", date);
+                intent.putExtra("comment", comment);
+                intent.putExtra("address", address);
+                intent.putExtra("orderid", ordercode);
+                intent.putExtra("qrcode", qrcode);
+                intent.putExtra("latitude",latitude);
+                intent.putExtra("longitude", longitude);
 
-            startActivity(intent);
+                startActivity(intent);
+            }
         }
+    }
+
+    /*Address decoder*/
+
+    private void decodeaddress(final String address) {
+        SmartLocation.with(neworder.this).geocoding().direct(address, new OnGeocodingListener() {
+            @Override
+            public void onLocationResolved(String s, List<LocationAddress> list) {
+                if(list.size() > 0){
+                    String time, date, comment, servicetype;
+
+                    servicetype = etservice.getText().toString().trim();
+                    time = ettime.getText().toString().trim();
+                    date =etdate.getText().toString().trim();
+                    comment = etcomment.getText().toString().trim();
+
+                    Location mylocation = list.get(0).getLocation();
+                    latitude = mylocation.getLatitude();
+                    longitude = mylocation.getLongitude();
+
+                    if(!time.isEmpty() && !date.isEmpty() && !address.isEmpty()){
+                        Intent intent = new Intent(neworder.this, statuspage.class);
+
+                        intent.putExtra("service", service);
+                        intent.putExtra("servicetype",servicetype);
+                        intent.putExtra("time", time);
+                        intent.putExtra("date", date);
+                        intent.putExtra("comment", comment);
+                        intent.putExtra("address", address);
+                        intent.putExtra("orderid", ordercode);
+                        intent.putExtra("qrcode",qrcode);
+                        intent.putExtra("latitude",latitude);
+                        intent.putExtra("longitude", longitude);
+
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
     }
 
     /*Order Code Generator*/

@@ -48,12 +48,14 @@
                         android:textSize="10sp" />
 
                     <TextView
-                        android:id="@+id/newname"
+                        android:id="@+id/location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Getting location..."
                         android:textColor="#ffffff"
                         android:textSize="14sp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:textStyle="bold" />
                 </LinearLayout>
 

@@ -1,13 +1,21 @@
 package aditya.cyfoes.com.dots1;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -23,6 +31,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,9 +40,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.karan.churi.PermissionManager.PermissionManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.OnReverseGeocodingListener;
+import io.nlopez.smartlocation.SmartLocation;
 
 public class newdrawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -42,7 +57,9 @@ public class newdrawer extends AppCompatActivity
     LinearLayout gridview;
     DatabaseReference dbrservice = FirebaseDatabase.getInstance().getReference("services");
     DatabaseReference dbruser = FirebaseDatabase.getInstance().getReference("Users");
-    FirebaseAuth fauth=FirebaseAuth.getInstance();
+    FirebaseAuth fauth = FirebaseAuth.getInstance();
+    PermissionManager permission;
+    TextView currentlocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +69,16 @@ public class newdrawer extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().hide();
 
+        permission = new PermissionManager() {};
+        //permission.checkAndRequestPermissions(this);
+
         btnnewline = (Button) findViewById(R.id.btnnewline);
         gridview = (LinearLayout) findViewById(R.id.gridview);
+        currentlocation = (TextView) findViewById(R.id.location);
 
         createcards();
+
+        checkgpsstate();
 
         btnnewline.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +100,78 @@ public class newdrawer extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    /*GPS state check*/
+
+    private void checkgpsstate() {
+        if (!SmartLocation.with(newdrawer.this).location().state().isGpsAvailable()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(newdrawer.this);
+            builder.setTitle("GPS Disabled!");
+            builder.setMessage("GPS should be enabled to get your location");
+            builder.setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(newdrawer.this, "Okay", Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.show();
+        }else {
+            getlocation();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permission.checkResult(requestCode, permissions, grantResults);
+
+        getlocation();
+
+    }
+
+    /* Getting Location*/
+
+    private void getlocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(newdrawer.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permission.checkAndRequestPermissions(newdrawer.this);
+                return;
+            }
+            SmartLocation.with(newdrawer.this).location().oneFix().start(new OnLocationUpdatedListener() {
+                @Override
+                public void onLocationUpdated(Location location) {
+                    SmartLocation.with(newdrawer.this).geocoding().reverse(location, new OnReverseGeocodingListener() {
+                        @Override
+                        public void onAddressResolved(Location location, List<Address> list) {
+                            if (list.size() > 0) {
+                                currentlocation.setText(list.get(0).getAddressLine(0));
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            SmartLocation.with(newdrawer.this).location().oneFix().start(new OnLocationUpdatedListener() {
+                @Override
+                public void onLocationUpdated(Location location) {
+                    SmartLocation.with(newdrawer.this).geocoding().reverse(location, new OnReverseGeocodingListener() {
+                        @Override
+                        public void onAddressResolved(Location location, List<Address> list) {
+                            if (list.size() > 0) {
+                                currentlocation.setText(list.get(0).getAddressLine(0));
+                            }
+                        }
+                    });
+                }
+            });
+        }
     }
 
     /*Create cards*/
@@ -182,15 +277,15 @@ public class newdrawer extends AppCompatActivity
         dbruser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                double mylati=0.0;
-                double mylongi=0.0;
-                if(dataSnapshot.child(fauth.getCurrentUser().getUid()).hasChild("lati") && dataSnapshot.child(fauth.getCurrentUser().getUid()).hasChild("longi")) {
+                double mylati = 0.0;
+                double mylongi = 0.0;
+                if (dataSnapshot.child(fauth.getCurrentUser().getUid()).hasChild("lati") && dataSnapshot.child(fauth.getCurrentUser().getUid()).hasChild("longi")) {
                     mylati = Double.parseDouble(dataSnapshot.child(fauth.getCurrentUser().getUid()).child("lati").getValue().toString());
                     mylongi = Double.parseDouble(dataSnapshot.child(fauth.getCurrentUser().getUid()).child("longi").getValue().toString());
 
-                    for(DataSnapshot dusers: dataSnapshot.getChildren()){
-                        if(!dusers.getKey().toString().equals(fauth.getCurrentUser().getUid().toString())){
-                            if(dusers.hasChild("info")){
+                    for (DataSnapshot dusers : dataSnapshot.getChildren()) {
+                        if (!dusers.getKey().toString().equals(fauth.getCurrentUser().getUid().toString())) {
+                            if (dusers.hasChild("info")) {
                                 double lati = Double.parseDouble(dusers.child("info").child("lati").getValue().toString());
                                 double longi = Double.parseDouble(dusers.child("info").child("longi").getValue().toString());
 
@@ -204,14 +299,14 @@ public class newdrawer extends AppCompatActivity
 
                                 double distance = customer.distanceTo(provider);
 
-                                if(distance < dis[0]){
+                                if (distance < dis[0]) {
                                     dis[0] = distance;
                                 }
                             }
                         }
                     }
 
-                }else {
+                } else {
                     dis[0] = 100000.0;
                 }
             }
