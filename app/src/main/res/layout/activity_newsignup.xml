@@ -38,6 +38,7 @@
                     app:civ_border_width="2dp"/>
 
                 <ImageView
+                    android:id="@+id/btnplus"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_gravity="right"

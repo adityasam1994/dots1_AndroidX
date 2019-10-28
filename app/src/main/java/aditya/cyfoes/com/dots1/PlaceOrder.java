@@ -1,15 +1,15 @@
 package aditya.cyfoes.com.dots1;
 
 public class PlaceOrder {
-    String service, servicetype, time, Service_Date,
-            eaddress, username, latitude, longitude, ecomment, cost, code, qrcode, date, format, status;
+    String service, servicetype, time, Service_date,
+            eaddress, username, latitude, longitude, ecomment, cost, code, qrcode, Date, format, status;
 
-    public PlaceOrder(String service, String servicetype, String time, String service_date, String eaddress, String username,
-                      String latitude, String longitude, String ecomment, String cost, String code, String qrcode, String date, String format) {
+    public PlaceOrder(String service, String servicetype, String time, String Service_date, String eaddress, String username,
+                      String latitude, String longitude, String ecomment, String cost, String code, String qrcode, String Date, String format) {
         this.service = service;
         this.servicetype = servicetype;
         this.time = time;
-        this.Service_Date = service_date;
+        this.Service_date = Service_date;
         this.eaddress = eaddress;
         this.username = username;
         this.latitude = latitude;
@@ -18,7 +18,7 @@ public class PlaceOrder {
         this.cost = cost;
         this.code = code;
         this.qrcode = qrcode;
-        this.date = date;
+        this.Date = Date;
         this.format = format;
         this.status = "pending";
     }
@@ -47,12 +47,12 @@ public class PlaceOrder {
         this.time = time;
     }
 
-    public String getService_Date() {
-        return Service_Date;
+    public String getService_date() {
+        return Service_date;
     }
 
-    public void setService_Date(String service_date) {
-        Service_Date = service_date;
+    public void setService_date(String service_date) {
+        Service_date = service_date;
     }
 
     public String getEaddress() {
@@ -120,11 +120,11 @@ public class PlaceOrder {
     }
 
     public String getDate() {
-        return date;
+        return Date;
     }
 
     public void setDate(String date) {
-        this.date = date;
+        Date = date;
     }
 
     public String getFormat() {

@@ -1,13 +1,17 @@
 package aditya.cyfoes.com.dots1;
 
 import android.animation.ValueAnimator;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Location;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,15 +38,22 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,6 +67,7 @@ import static javax.xml.datatype.DatatypeConstants.DURATION;
 
 public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
 
+    ProgressDialog pd;
     TextView idlable, datelable, timelable, servicelable, locationlable, commentlable, costlable;
     TextView etid, etdate, ettime, etservice, etlocation, etcomment, etcost, txtdistance;
     TextView servicename;
@@ -65,12 +77,15 @@ public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
     double latitude, longitude;
     DatabaseReference dbrorder = FirebaseDatabase.getInstance().getReference("Orders");
     DatabaseReference dbruser = FirebaseDatabase.getInstance().getReference("Users");
+    StorageReference sref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://mydots-554f6.appspot.com/");
+
     FirebaseAuth fauth = FirebaseAuth.getInstance();
     Boolean searchforprovider=false;
     String currentprovider="";
     FrameLayout frameLayout;
     GoogleMap gmap;
     Button btnsetmap;
+    Uri fileuri;
     ArrayList<String> rejectedproviders = new ArrayList<>();
     ArrayList<MarkerOptions> markers = new ArrayList<>();
 
@@ -79,6 +94,7 @@ public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statuspage);
 
+        pd = new ProgressDialog(this);
         idlable = (TextView)findViewById(R.id.idlable);
         datelable = (TextView)findViewById(R.id.datelable);
         timelable = (TextView)findViewById(R.id.timelable);
@@ -114,6 +130,11 @@ public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
         qrcode = getIntent().getExtras().getString("qrcode");
         filepath = getIntent().getExtras().getString("filepath");
         filetype = getIntent().getExtras().getString("filetype");
+
+        //Bitmap b = BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra("byteArray"),0,getIntent().getByteArrayExtra("byteArray").length);
+
+        //fileuri = getImageUri(this, b);
+        fileuri = getIntent().getParcelableExtra("fileuri");
 
         MapFragment mapFragment=(MapFragment)getFragmentManager().findFragmentById(R.id.gmap);
         mapFragment.getMapAsync(this);
@@ -199,6 +220,13 @@ public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
 
     }
 
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
     /*Getting username*/
 
     private void getusername() {
@@ -219,17 +247,38 @@ public class statuspage extends AppCompatActivity implements OnMapReadyCallback{
 
     private void placeorder() {
         if(btnaccept.getText().toString().equals("accept")) {
-            SimpleDateFormat forma=new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
-            Date cd= Calendar.getInstance().getTime();
-            final String dt=forma.format(cd);
+            sref.child("order/").child(sid).putFile(fileuri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            SimpleDateFormat forma=new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+                            Date cd= Calendar.getInstance().getTime();
+                            final String dt=forma.format(cd);
 
-            PlaceOrder po = new PlaceOrder(sname, sservice, stime, sdate, slocation, username,
-                    latitude+"", longitude+"", scomment, scost, sid, qrcode, dt,filetype);
-            dbrorder.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(sid).setValue(po);
-            Toast.makeText(this, "Order Placed", Toast.LENGTH_SHORT).show();
-            btnaccept.setText("cancel");
-            searchforprovider=true;
-            searchprovider();
+                            PlaceOrder po = new PlaceOrder(sname, sservice, stime, sdate, slocation, username,
+                                    latitude+"", longitude+"", scomment, scost, sid, qrcode, dt,filetype);
+                            dbrorder.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(sid).setValue(po);
+                            Toast.makeText(statuspage.this, "Order Placed", Toast.LENGTH_SHORT).show();
+                            btnaccept.setText("cancel");
+                            searchforprovider=true;
+                            pd.dismiss();
+                            searchprovider();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                            .getTotalByteCount());
+                    pd.setMessage("Placing order... "+(int)progress+"%");
+                    pd.show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(statuspage.this, "Failed to place order", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }else if (btnaccept.getText().toString().equals("cancel")){
             dbrorder.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(sid).child("status").setValue("cancelled");
             searchforprovider=false;

@@ -16,10 +16,12 @@ import android.location.Location;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.karan.churi.PermissionManager.PermissionManager;
 import com.mindorks.paracamera.Camera;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Calendar;
 import java.util.List;
@@ -57,6 +60,8 @@ import io.nlopez.smartlocation.geocoding.utils.LocationAddress;
 
 public class neworder extends AppCompatActivity {
 
+    public static final int CAMERA_CODE=9090;
+    public static final int VIDEO_CODE=8080;
     Context context;
     String ordercode, service, qrcode;
     Button btnsubmit, btneditaddress, btnlocation, btnplus;
@@ -69,6 +74,8 @@ public class neworder extends AppCompatActivity {
     String filePath;
     RoundedImageView btnimage;
     String filetype;
+    Uri fileuri;
+    ByteArrayOutputStream bs;
     DatabaseReference dbrservice = FirebaseDatabase.getInstance().getReference("services");
     DatabaseReference dbrservicetime = FirebaseDatabase.getInstance().getReference("servicetime");
 
@@ -161,7 +168,7 @@ public class neworder extends AppCompatActivity {
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(neworder.this);
                 builder.setTitle("Changing address");
-                builder.setMessage("Are you sure you want ot enter manually?");
+                builder.setMessage("Are you sure you want ot enter address manually?");
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -185,8 +192,9 @@ public class neworder extends AppCompatActivity {
                     permission.checkAndRequestPermissions(neworder.this);
                     return;
                 }
-                builder.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_MEDIUM);
-                new Annca(builder.build()).launchCamera();
+//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                startActivityForResult(intent, CAMERA_CODE);
+                camorvideo();
             }
         });
     }
@@ -211,19 +219,42 @@ public class neworder extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 2 && resultCode == RESULT_OK) {
-            filePath = data.getStringExtra(AnncaConfiguration.Arguments.FILE_PATH);
-            String type = getMimeType(neworder.this, Uri.fromFile(new File(filePath)));
-            filetype = type;
-            if(type.equals("image")) {
-                Bitmap myBitmap = BitmapFactory.decodeFile(filePath);
-                btnimage.setImageBitmap(myBitmap);
-            }else if(type.equals("video")){
-                Bitmap thumb = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
-                btnimage.setImageBitmap(thumb);
-            }
+        if(requestCode == CAMERA_CODE && resultCode == RESULT_OK){
+            bs = new ByteArrayOutputStream();
+            Bitmap bmp = (Bitmap)data.getExtras().get("data");
+            bmp.compress(Bitmap.CompressFormat.PNG, 50, bs);
+            filePath = data.getExtras().get("data").toString();
+            fileuri = data.getData();
         }
+    }
+
+
+    /*Camera or video*/
+    private void  camorvideo(){
+        final Dialog dialog=new Dialog(neworder.this);
+        dialog.setContentView(R.layout.camorvideo);
+        dialog.show();
+        Button cam=dialog.findViewById(R.id.cam);
+        Button vid=dialog.findViewById(R.id.video);
+
+        cam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                filetype = "image";
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, CAMERA_CODE);
+            }
+        });
+
+        vid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                filetype="video";
+                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                startActivityForResult(intent, VIDEO_CODE);
+                dialog.dismiss();
+            }
+        });
     }
 
     /*Set GPS location*/
@@ -383,6 +414,8 @@ public class neworder extends AppCompatActivity {
                 intent.putExtra("longitude", longitude);
                 intent.putExtra("filepath", filePath);
                 intent.putExtra("filetype", filetype);
+                intent.putExtra("fileuri", fileuri);
+                //intent.putExtra("byteArray", bs.toByteArray());
 
                 startActivity(intent);
             }

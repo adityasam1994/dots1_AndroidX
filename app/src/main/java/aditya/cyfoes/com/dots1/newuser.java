@@ -1,32 +1,33 @@
 package aditya.cyfoes.com.dots1;
 
 public class newuser {
-    String fname, lname, address, ph;
+    String fname, lname, address, ph, signup_time;
     double lati, longi;
 
-    public newuser(String first_name, String last_name, String address, String phone, Double latitude, Double longitude) {
-        this.fname = first_name;
-        this.lname = last_name;
+    public newuser(String fname, String lname, String address, String ph, String signup_time ,Double lati, Double longi) {
+        this.fname = fname;
+        this.lname = lname;
         this.address = address;
-        this.ph = phone;
-        this.lati = latitude;
-        this.longi = longitude;
+        this.ph = ph;
+        this.lati = lati;
+        this.longi = longi;
+        this.signup_time = signup_time;
     }
 
-    public String getFirst_name() {
+    public String getFname() {
         return fname;
     }
 
-    public void setFirst_name(String first_name) {
-        this.fname = first_name;
+    public void setFname(String fname) {
+        this.fname = fname;
     }
 
-    public String getLast_name() {
+    public String getLname() {
         return lname;
     }
 
-    public void setLast_name(String last_name) {
-        this.lname = last_name;
+    public void setLname(String lname) {
+        this.lname = lname;
     }
 
     public String getAddress() {
@@ -37,25 +38,35 @@ public class newuser {
         this.address = address;
     }
 
-    public String getPhone() {
+    public String getPh() {
         return ph;
     }
 
-    public void setPhone(String phone) {
-        this.ph = phone;
+    public void setPh(String ph) {
+        this.ph = ph;
     }
 
-    public double getLatitude() {
+    public String getSignup_time() {
+        return signup_time;
+    }
+
+    public void setSignup_time(String signup_time) {
+        this.signup_time = signup_time;
+    }
+
+    public double getLati() {
         return lati;
     }
 
-    public void setLatitude(double latitude) {
-        this.lati = latitude;
+    public void setLati(double lati) {
+        this.lati = lati;
     }
 
-    public double getLongitude() { return longi; }
+    public double getLongi() {
+        return longi;
+    }
 
-    public void setLongitude(double longitude) {
-        this.longi = longitude;
+    public void setLongi(double longi) {
+        this.longi = longi;
     }
 }

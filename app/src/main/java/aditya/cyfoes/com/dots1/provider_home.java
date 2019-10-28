@@ -3,6 +3,7 @@ package aditya.cyfoes.com.dots1;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -15,15 +16,32 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class provider_home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ImageView btnlines;
+    DatabaseReference dbrorder = FirebaseDatabase.getInstance().getReference("Orders");
+    DatabaseReference dbruser = FirebaseDatabase.getInstance().getReference("Users");
+    StorageReference sref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://mydots-554f6.appspot.com/");
+    TextView tvservice, tvcode, tvdetail, tvtime, tvcomment, tvservicetype, tvcost;
+    ImageView btnlines, getdirection, imgplay, imgdownload;
+    EditText etcode;
+    Button scanqr, btncancel, btnstart;
+    LinearLayout details;
     FirebaseAuth fauth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +52,25 @@ public class provider_home extends AppCompatActivity
         getSupportActionBar().hide();
 
         fauth = FirebaseAuth.getInstance();
+        details = (LinearLayout)findViewById(R.id.details);
+        getdirection = (ImageView)findViewById(R.id.getdirection);
+        imgplay = (ImageView)findViewById(R.id.imgplay);
+        imgdownload = (ImageView)findViewById(R.id.imgdownload);
+        tvservice = (TextView)findViewById(R.id.tvcservice);
+        tvcode = (TextView)findViewById(R.id.tvcode);
+        tvdetail = (TextView)findViewById(R.id.tvcdetail);
+        tvtime = (TextView)findViewById(R.id.tvctime);
+        tvcomment = (TextView)findViewById(R.id.tvccomment);
+        tvservicetype = (TextView)findViewById(R.id.tvtype);
+        tvcost = (TextView)findViewById(R.id.tvcost);
+        etcode = (EditText) findViewById(R.id.etcode);
+        scanqr = (Button)findViewById(R.id.scanqr);
+        btncancel = (Button)findViewById(R.id.btncancel);
+        btnstart = (Button)findViewById(R.id.btnstart);
+
         btnlines = (ImageView)findViewById(R.id.lines);
+
+        checkorders();
 
         btnlines.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +92,61 @@ public class provider_home extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    /*Check Orders*/
+    private void checkorders() {
+        dbrorder.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot duser: dataSnapshot.getChildren()){
+                    for(DataSnapshot dcode: duser.getChildren()){
+                        if(dcode.hasChild(fauth.getCurrentUser().getUid())){
+                            if(dcode.child(fauth.getCurrentUser().getUid()).child("status").equals("pending")){
+                                if(dcode.hasChild("service")) {
+                                    tvservice.setText(dcode.child("service").getValue().toString());
+                                }
+                                if(dcode.hasChild("Service_date") && dcode.hasChild("time")) {
+                                    tvtime.setText(dcode.child("Service_date").getValue().toString()+"/"+dcode.child("time").getValue().toString());
+                                }
+                                if(dcode.hasChild("ecomment")) {
+                                    tvcomment.setText(dcode.child("ecomment").getValue().toString());
+                                }
+                                if(dcode.hasChild("servicetype")) {
+                                    tvservicetype.setText(dcode.child("servicetype").getValue().toString());
+                                }
+                                if(dcode.hasChild("cost")) {
+                                    tvcost.setText(dcode.child("cost").getValue().toString());
+                                }
+                                setuserdetails(duser.getKey().toString(), duser.child("address").getValue().toString());
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /*Set user detail*/
+    private void setuserdetails(String customer_id, final String address) {
+        dbruser.child(customer_id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("fname") && dataSnapshot.hasChild("lname")) {
+                    tvdetail.setText(dataSnapshot.child("fname") + " " + dataSnapshot.child("lname") + "\n" + address);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override

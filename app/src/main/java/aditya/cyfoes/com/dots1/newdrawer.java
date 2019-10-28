@@ -119,7 +119,10 @@ public class newdrawer extends AppCompatActivity
         dbruser.child(fauth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("fname").getValue().toString() +" "+ dataSnapshot.child("lname").getValue().toString();
+                String name="";
+                if(dataSnapshot.hasChild("fname") && dataSnapshot.hasChild("lname")) {
+                    name = dataSnapshot.child("fname").getValue().toString() + " " + dataSnapshot.child("lname").getValue().toString();
+                }
                 String email = fauth.getCurrentUser().getEmail().toString();
 
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
