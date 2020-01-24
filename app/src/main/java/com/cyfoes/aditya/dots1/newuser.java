@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 public class newuser {
     String fname, lname, address, ph, signup_time;

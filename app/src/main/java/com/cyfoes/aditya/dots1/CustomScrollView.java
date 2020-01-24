@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 import android.content.Context;
 import android.util.AttributeSet;

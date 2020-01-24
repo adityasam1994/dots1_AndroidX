@@ -1,33 +1,28 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fevziomurtekin.customprogress.Dialog;
-import com.fevziomurtekin.customprogress.Type;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -401,11 +396,17 @@ public class myaccount extends AppCompatActivity {
     /*Setting user details*/
 
     private void setuserdetails() {
-        setprofilepic();
+        //setprofilepic();
         dbruser.child(fauth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status = "";
+                if(!dataSnapshot.hasChild("profilepic")){
+                    setprofilepic();
+                }else {
+                    btnplus.setVisibility(View.INVISIBLE);
+                    Picasso.get().load(dataSnapshot.child("profilepic").getValue().toString()).resize(100,100).into(profilepic);
+                }
                 if (dataSnapshot.hasChild("current_status")) {
                     status = dataSnapshot.child("current_status").getValue().toString();
                     txtstatus.setText(status);

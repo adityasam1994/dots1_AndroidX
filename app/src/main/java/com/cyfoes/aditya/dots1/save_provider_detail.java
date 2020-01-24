@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 public class save_provider_detail {
     String eservice, eage, eavailable, ecomment, eaddress;
@@ -14,59 +14,59 @@ public class save_provider_detail {
         this.longi = longi;
     }
 
-    public String getService() {
+    public String getEservice() {
         return eservice;
     }
 
-    public void setService(String eservice) {
+    public void setEservice(String eservice) {
         this.eservice = eservice;
     }
 
-    public String getAge() {
+    public String getEage() {
         return eage;
     }
 
-    public void setAge(String eage) {
+    public void setEage(String eage) {
         this.eage = eage;
     }
 
-    public String getServicetime() {
+    public String getEavailable() {
         return eavailable;
     }
 
-    public void setServicetime(String eavilable) {
-        this.eavailable = eavilable;
+    public void setEavailable(String eavailable) {
+        this.eavailable = eavailable;
     }
 
-    public String getComment() {
+    public String getEcomment() {
         return ecomment;
     }
 
-    public void setComment(String ecomment) {
+    public void setEcomment(String ecomment) {
         this.ecomment = ecomment;
     }
 
-    public String getAddress() {
+    public String getEaddress() {
         return eaddress;
     }
 
-    public void setAddress(String eaddress) {
+    public void setEaddress(String eaddress) {
         this.eaddress = eaddress;
     }
 
-    public double getLatitude() {
+    public double getLati() {
         return lati;
     }
 
-    public void setLatitude(double lati) {
+    public void setLati(double lati) {
         this.lati = lati;
     }
 
-    public double getLongitude() {
+    public double getLongi() {
         return longi;
     }
 
-    public void setLongitude(double longi) {
+    public void setLongi(double longi) {
         this.longi = longi;
     }
 }

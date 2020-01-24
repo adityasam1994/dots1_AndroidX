@@ -1,6 +1,6 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class privacy__policy extends AppCompatActivity {

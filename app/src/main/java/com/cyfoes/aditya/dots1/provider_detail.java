@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -10,8 +10,8 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,26 +22,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.UploadTask;
 import com.karan.churi.PermissionManager.PermissionManager;
 
-import org.w3c.dom.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import io.nlopez.smartlocation.OnGeocodingListener;
@@ -172,7 +160,7 @@ public class provider_detail extends AppCompatActivity {
         comment = etcomment.getText().toString().trim();
         address = etlocation.getText().toString().trim();
 
-        if(!service.isEmpty() && !time.isEmpty() && !age.isEmpty() && !comment.isEmpty() && !address.isEmpty()) {
+        if(!service.isEmpty() && !time.isEmpty() && !age.isEmpty() && !address.isEmpty()) {
             if (gpsaddress) {
                 save_provider_detail spd = new save_provider_detail(service, age, time, comment, address, latitude, longitude);
                 dbruser.child(fauth.getCurrentUser().getUid()).child("info").setValue(spd);

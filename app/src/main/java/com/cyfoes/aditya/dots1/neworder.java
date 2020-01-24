@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -9,20 +9,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Location;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,15 +41,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.karan.churi.PermissionManager.PermissionManager;
-import com.mindorks.paracamera.Camera;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
-import io.github.memfis19.annca.Annca;
-import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.nlopez.smartlocation.OnGeocodingListener;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.OnReverseGeocodingListener;
@@ -75,6 +69,7 @@ public class neworder extends AppCompatActivity {
     RoundedImageView btnimage;
     String filetype;
     Uri fileuri;
+    RoundedImageView image;
     ByteArrayOutputStream bs;
     DatabaseReference dbrservice = FirebaseDatabase.getInstance().getReference("services");
     DatabaseReference dbrservicetime = FirebaseDatabase.getInstance().getReference("servicetime");
@@ -88,6 +83,7 @@ public class neworder extends AppCompatActivity {
         permission = new PermissionManager() {};
         //permission.checkAndRequestPermissions(this);
 
+        image = (RoundedImageView)findViewById(R.id.btnimage);
         etservice = (EditText) findViewById(R.id.etservice);
         ettime = (EditText) findViewById(R.id.ettime);
         etdate = (EditText) findViewById(R.id.etdate);
@@ -187,13 +183,10 @@ public class neworder extends AppCompatActivity {
         btnplus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AnncaConfiguration.Builder builder = new AnncaConfiguration.Builder(neworder.this, 2);
                 if (ActivityCompat.checkSelfPermission(neworder.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     permission.checkAndRequestPermissions(neworder.this);
                     return;
                 }
-//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                startActivityForResult(intent, CAMERA_CODE);
                 camorvideo();
             }
         });
@@ -220,12 +213,25 @@ public class neworder extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CAMERA_CODE && resultCode == RESULT_OK){
-            bs = new ByteArrayOutputStream();
-            Bitmap bmp = (Bitmap)data.getExtras().get("data");
-            bmp.compress(Bitmap.CompressFormat.PNG, 50, bs);
-            filePath = data.getExtras().get("data").toString();
             fileuri = data.getData();
+            Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+            image.setImageBitmap(bitmap);
         }
+        if(requestCode == VIDEO_CODE && resultCode == RESULT_OK){
+            fileuri = data.getData();
+            final String noturipath = getRealPathFromURI(fileuri);
+            Bitmap bitmap2 = ThumbnailUtils.createVideoThumbnail( noturipath , MediaStore.Images.Thumbnails.MINI_KIND );
+            image.setImageBitmap(bitmap2);
+        }
+    }
+
+    public String getRealPathFromURI(Uri contentUri)
+    {
+        String[] proj = { MediaStore.Audio.Media.DATA };
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
 
 
@@ -243,6 +249,7 @@ public class neworder extends AppCompatActivity {
                 filetype = "image";
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, CAMERA_CODE);
+                dialog.dismiss();
             }
         });
 
@@ -412,10 +419,8 @@ public class neworder extends AppCompatActivity {
                 intent.putExtra("qrcode", qrcode);
                 intent.putExtra("latitude",latitude);
                 intent.putExtra("longitude", longitude);
-                intent.putExtra("filepath", filePath);
                 intent.putExtra("filetype", filetype);
                 intent.putExtra("fileuri", fileuri);
-                //intent.putExtra("byteArray", bs.toByteArray());
 
                 startActivity(intent);
             }
@@ -453,10 +458,8 @@ public class neworder extends AppCompatActivity {
                         intent.putExtra("qrcode",qrcode);
                         intent.putExtra("latitude",latitude);
                         intent.putExtra("longitude", longitude);
-                        intent.putExtra("filepath", filePath);
                         intent.putExtra("filetype", filetype);
-
-                        Toast.makeText(neworder.this, latitude+"/"+longitude, Toast.LENGTH_SHORT).show();
+                        intent.putExtra("fileuri", fileuri);
 
                         startActivity(intent);
                     }

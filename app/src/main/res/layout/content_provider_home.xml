@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -28,7 +28,7 @@
                 android:src="@drawable/menulines" />
 
             <TextView
-                android:id="@+id/etname"
+                android:id="@+id/txtname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -64,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="visible">
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                             android:textSize="16dp" />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="30dp"
                         android:layout_marginTop="8dp"
@@ -111,7 +111,7 @@
                             android:gravity="center"
                             android:text="Will be rejected in: "
                             android:textStyle="bold" />
-                    </LinearLayout>
+                    </LinearLayout>-->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -140,8 +140,8 @@
                             android:layout_marginTop="5dp"
                             android:background="@drawable/white_bg"
                             android:inputType="textMultiLine"
-                            android:paddingEnd="20dp"
                             android:paddingStart="8dp"
+                            android:paddingEnd="20dp"
                             android:text="customer detail"
                             android:textColor="#000000" />
 
@@ -238,9 +238,9 @@
                                     android:id="@+id/tvcost"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginBottom="20dp"
                                     android:layout_marginLeft="20dp"
                                     android:layout_marginTop="5dp"
+                                    android:layout_marginBottom="20dp"
                                     android:background="@drawable/white_bg"
                                     android:paddingStart="8dp"
                                     android:text="Cost"
@@ -312,8 +312,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -403,4 +403,4 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package aditya.cyfoes.com.dots1;
+package com.cyfoes.aditya.dots1;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -12,28 +12,29 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
 import android.view.LayoutInflater;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import com.google.android.material.navigation.NavigationView;
+
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,7 +51,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.OnReverseGeocodingListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -67,6 +67,7 @@ public class newdrawer extends AppCompatActivity
     TextView currentlocation;
     TextView tvname;
     ImageView ivpic;
+    Button btnprovider;
     StorageReference sref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://mydots-554f6.appspot.com/");
 
     @Override
@@ -77,7 +78,8 @@ public class newdrawer extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().hide();
 
-        permission = new PermissionManager() {};
+        permission = new PermissionManager() {
+        };
         //permission.checkAndRequestPermissions(this);
 
         btnnewline = (Button) findViewById(R.id.btnnewline);
@@ -115,21 +117,55 @@ public class newdrawer extends AppCompatActivity
     /*Setting profile pic and name*/
 
     private void setuserprofile() {
-        setprofilepicture();
+        //setprofilepicture();
         dbruser.child(fauth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name="";
-                if(dataSnapshot.hasChild("fname") && dataSnapshot.hasChild("lname")) {
+                String name = "";
+
+                if (!dataSnapshot.hasChild("profilepic")) {
+                    setprofilepicture();
+                } else {
+                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                    ivpic = (ImageView) drawer.findViewById(R.id.ivpic);
+                    Picasso.get().load(dataSnapshot.child("profilepic").getValue().toString()).resize(100, 100).into(ivpic);
+                }
+
+                if (dataSnapshot.hasChild("fname") && dataSnapshot.hasChild("lname")) {
                     name = dataSnapshot.child("fname").getValue().toString() + " " + dataSnapshot.child("lname").getValue().toString();
                 }
                 String email = fauth.getCurrentUser().getEmail().toString();
 
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                tvname = (TextView)drawer.findViewById(R.id.tvname);
-                TextView tvemail = (TextView)drawer.findViewById(R.id.tvemail);
+                tvname = (TextView) drawer.findViewById(R.id.tvname);
+                TextView tvemail = (TextView) drawer.findViewById(R.id.tvemail);
                 tvname.setText(name);
                 tvemail.setText(email);
+
+                btnprovider = (Button)drawer.findViewById(R.id.btnasprovider);
+
+                btnprovider.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dbruser.child(fauth.getCurrentUser().getUid()).child("current_status").setValue("provider").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                startActivity(new Intent(newdrawer.this, provider_home.class));
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(newdrawer.this, "Failed to switch", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+                if (dataSnapshot.hasChild("status")) {
+                    if (dataSnapshot.child("status").getValue().toString().equals("provider")) {
+                        btnprovider.setVisibility(View.VISIBLE);
+                    }
+                }
             }
 
             @Override
@@ -146,8 +182,8 @@ public class newdrawer extends AppCompatActivity
             @Override
             public void onSuccess(Uri uri) {
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                ivpic = (ImageView)drawer.findViewById(R.id.ivpic);
-                Picasso.get().load(uri).resize(300,300).into(ivpic);
+                ivpic = (ImageView) drawer.findViewById(R.id.ivpic);
+                Picasso.get().load(uri).resize(300, 300).into(ivpic);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -177,7 +213,7 @@ public class newdrawer extends AppCompatActivity
                 }
             });
             builder.show();
-        }else {
+        } else {
             getlocation();
         }
     }
@@ -195,7 +231,7 @@ public class newdrawer extends AppCompatActivity
 
     private void getlocation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(newdrawer.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(newdrawer.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permission.checkAndRequestPermissions(newdrawer.this);
                 return;
             }
@@ -418,6 +454,8 @@ public class newdrawer extends AppCompatActivity
         } else if (id == R.id.lout) {
             fauth.signOut();
             startActivity(new Intent(newdrawer.this, newlogin.class));
+        } else if (id == R.id.nav_orders) {
+            startActivity(new Intent(newdrawer.this, myorders.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
